@@ -1,0 +1,38 @@
+.details{
+    margin-top: 10%;
+    .add-to-cart-section{
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 5px;
+    }
+    .content-details{
+        h1{
+            margin-top: 20px;
+            color:#203d48;
+            font-weight: bolder;
+            font-size: 3rem;
+        }
+        .price{
+            font-size: 2rem;
+            span{
+                font-size: 1.5rem;
+                color:$primary;
+                font-weight: lighter;
+                text-decoration: line-through;
+            }
+        }
+        .description{
+            p{
+                color: #203d48 !important;
+            }
+        }
+    } 
+    img{
+       margin-left: 90px !important;
+       object-fit: contain;
+    }
+
+   
+    
+}
