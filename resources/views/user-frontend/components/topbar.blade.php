@@ -19,7 +19,7 @@
   <header class="site-navbar">
     <div class="container-fluid">
       <div class="row align-items-center">
-        <div class="site-logo col-6"><a href="{{ route('home.index') }}">ARMANI FLOWERSHOP</a></div>
+        <div class="site-logo col-6"><a href="{{ route('home.index') }}">Ecommerse FLOWERSHOP</a></div>
 
         <nav class="mx-auto site-navigation">
           <ul class="site-menu js-clone-nav d-none d-xl-block ml-0 pl-0">

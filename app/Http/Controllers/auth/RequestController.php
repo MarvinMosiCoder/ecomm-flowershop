@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use DB;
 use App\Models\InventoryModel;
 use App\Models\AddToCartModel;
+use App\Models\UsersAddresses;
+use App\Models\PaymentTypeModel;
 use Auth;
 use Illuminate\Support\Facades\Redirect;
 
@@ -90,16 +92,10 @@ class RequestController extends Controller{
     public function submitCheckoutCart(Request $request){
         $data = [];
         $req = $request->all();
- 
         $ids = $req['cart_id'];
-        
-        $data['my_cart_detail'] = AddToCartModel::leftjoin('inventory_tbl','add_to_cart_tbl.prod_id','=','inventory_tbl.id')
-                                 ->leftjoin('inventory_image','inventory_tbl.id','=','inventory_image.inv_id')
-                                 ->select('*','add_to_cart_tbl.id AS cart_id','add_to_cart_tbl.price AS cart_price')
-                                 ->where('user_id', Auth::id())
-                                 ->whereIn('add_to_cart_tbl.id',$ids)
-                                 ->get();
-
+        $data['my_cart_detail'] = AddToCartModel::cartDetail($ids,Auth::id());
+        $data['my_address'] = UsersAddresses::select('*')->where('user_id', Auth::id())->whereNotNull('is_default')->first();
+        $data['payment_type'] = PaymentTypeModel::select('*')->where('status','ACTIVE')->get();
         return view('user-frontend.views.checkout',$data);
     }
 
