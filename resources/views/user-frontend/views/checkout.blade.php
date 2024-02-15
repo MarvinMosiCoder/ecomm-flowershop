@@ -66,6 +66,15 @@
         position: fixed;
     }
 
+    @media (max-width: 750px) {
+        .fixed {
+            position: static;
+        }
+        .cart{
+            margin-top: 50px;
+        }
+    }
+
 </style>
 @section('content')
 
@@ -77,7 +86,7 @@
                     <div class="custom-card address clickable">
                         <div class="arrow pull-right" style="margin-top: 20px; !important; font-size: 25px !important">&#62;</div>
                         <h5>{{ $my_address->fullname }} | {{ $my_address->phone_number }}</h5>
-                        <p>{{ $my_address->house_no .' '. $my_address->barangay .' '. $my_address->city . ',' . $my_address->region . $my_address->postal_code}}</p>
+                        <p>{{ $my_address->house_no .' '. $my_address->brgyDesc .' '. $my_address->citymunDesc . ', ' . $my_address->region_desc .' '. $my_address->postal_code}}</p>
                         <a href="test"></a>
                     </div>
 
@@ -103,13 +112,9 @@
                             <br>
                         @endforeach
                     </div>
-                    <div class="footer">
-                        <p class="text-center">By replacing an order, you agree to the <span style="color:#000;font-style:bold"><a href="">Shop Terms of Use and Sale</a></span> and acknowledge that you have read the <span style="color:#000;font-style:bold"><a href="">Shop Privacy Policy.</a><span></p>
-                    </div>
+                    
                     <hr>
-                    <div class="check-area">
-                        <button type="submit" class="btn btn-primary btn-lg font-weight-medium auth-form-btn" id="add-to-cart"><span class="mr-2 icon-payment"></span>Pay</button>
-                    </div>
+                    
                 </div>
                 <div class="col-md-6">
                     <div class="fixed" style="border-left: 1px solid #b0adad">
@@ -140,23 +145,64 @@
                                 </div>
                             </div>
                         @endforeach
-                        <div class="title text-center" style="color: black">
-                            Subtotal: <span id="totalQty">0</span>
+                        <div class="title" style="color: black; ">
+                            <h5>Order summary</h5>
+                            Subtotal: <span id="price" class="pull-right">₱0</span><br>
+                            Shipping: <span id="shipping" class="pull-right">₱0</span><br>
+                            Total: <span id="totalPrice" class="pull-right">₱0</span>
                         </div>
                     </div>
                 </div>
             </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="footer text-center">
+                        <p class="text-center">By replacing an order, you agree to the <span style="color:#000;font-style:bold"><a href="">Shop Terms of Use and Sale</a></span> and acknowledge that you have read the <span style="color:#000;font-style:bold"><a href="">Shop Privacy Policy.</a><span></p>
+                    </div>
+                    <div class="check-area">
+                        <button type="submit" class="btn btn-primary btn-lg font-weight-medium auth-form-btn" id="add-to-cart"><span class="mr-2 icon-payment"></span>Pay</button>
+                    </div>
+                </div>
+            </div>
+            
         </form>
     </section>
 
 @section('script-js')
   <script>
     $(document).ready(function(){
+        $('#price').text(`₱${calculatePrice().toFixed(2)}`);
+        $('#totalPrice').text(`₱${calculateTotalPrice().toFixed(2)}`);
         $('.clickable').click(function(){
             window.location = $(this).find("a").attr("href");
         });        
     });
   
+    function calculatePrice() {
+        let totalQuantity = 0;
+        $('.total-price-hidden').each(function() {
+            let qty = 0;
+            if($(this).val().trim()) {
+                qty = parseInt($(this).val().replace(/,/g, ''));
+            }
+
+            totalQuantity += qty;
+        });
+        return totalQuantity;
+    }
+
+    function calculateTotalPrice() {
+        let totalPrice = 0;
+        
+        let price = 0;
+        if($('#price').val().trim()) {
+            price = parseInt($('#price').val().replace(/,/g, '')) + parseInt($('#shipping').val().replace(/,/g, ''));
+        }
+
+        totalPrice += price;
+        
+        return totalPrice;
+    }
   </script>
 @endsection
 

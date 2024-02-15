@@ -58,14 +58,11 @@ Route::group(['middleware' => ['web']], function() {
 
 Route::group(['namespace' => 'App\Http\Controllers\auth'], function(){   
     Route::get('/flowershop',[FlowerController::class,'index'])->name('flowershop');
-    /**
-     * Home Routes
-     */
-    //
+
 
     Route::group(['middleware' => ['auth']], function() {
         /**
-         * Logout Routes
+         * Users Routes
          */
         Route::get('/dashboard', 'DashboardController@index')->name('home.index');
         Route::get('/profile', [ProfileController::class,'index'])->name('profile');
@@ -79,6 +76,12 @@ Route::group(['namespace' => 'App\Http\Controllers\auth'], function(){
         Route::post('/flowershop/add-qty-cart',[RequestController::class,'addQtyCart'])->name('add.qty.cart');
         Route::post('/flowershop/less-qty-cart',[RequestController::class,'lessQtyCart'])->name('less.qty.cart');
         Route::post('/flowershop/submit-checkout',[RequestController::class,'submitCheckoutCart'])->name('submit-checkout');
+        //LOCATION
+        Route::post('/flowershop/select-province',[ProfileController::class,'getProvince'])->name('getProvince');
+        Route::post('/flowershop/select-city',[ProfileController::class,'getCity'])->name('getCity');
+        Route::post('/flowershop/select-brgy',[ProfileController::class,'getBrgy'])->name('getBrgy');
+
+        Route::post('/flowershop/add-address',[ProfileController::class, 'addAddress'])->name('add-address');
     });
 
     Route::group(['middleware' => ['guest']], function() {

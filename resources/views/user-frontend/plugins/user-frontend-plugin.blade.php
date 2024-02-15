@@ -15,3 +15,4 @@
 <!-- custom css file link  -->
 <link rel="stylesheet" href="{{ asset('css/sass/style.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/css/home.css') }}">
+<link rel="stylesheet" href="{{ asset ('vendor/crudbooster/assets/adminlte/plugins/select2/select2.min.css') }}">

@@ -94,7 +94,7 @@ class RequestController extends Controller{
         $req = $request->all();
         $ids = $req['cart_id'];
         $data['my_cart_detail'] = AddToCartModel::cartDetail($ids,Auth::id());
-        $data['my_address'] = UsersAddresses::select('*')->where('user_id', Auth::id())->whereNotNull('is_default')->first();
+        $data['my_address'] = UsersAddresses::addressDefault(Auth::id());
         $data['payment_type'] = PaymentTypeModel::select('*')->where('status','ACTIVE')->get();
         return view('user-frontend.views.checkout',$data);
     }

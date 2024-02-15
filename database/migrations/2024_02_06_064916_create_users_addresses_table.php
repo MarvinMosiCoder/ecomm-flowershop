@@ -18,12 +18,12 @@ class CreateUsersAddressesTable extends Migration
             $table->integer('user_id')->nullable();
             $table->string('fullname')->nullable();
             $table->integer('phone_number')->length(11)->nullable();
-            $table->string('region')->nullable();
-            $table->string('province')->nullable();
-            $table->string('city')->nullable();
-            $table->string('barangay')->nullable();
+            $table->integer('region')->length(11)->nullable();
+            $table->integer('province')->length(11)->nullable();
+            $table->integer('city')->length(11)->nullable();
+            $table->integer('barangay')->length(11)->nullable();
             $table->string('house_no')->nullable();
-            $table->integer('postal_code')->nullable();
+            $table->integer('postal_code')->nullable()->length(11);
             $table->string('label_as')->nullable();
             $table->integer('is_default')->nullable();
             $table->integer('created_by')->nullable();
