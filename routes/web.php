@@ -69,19 +69,24 @@ Route::group(['namespace' => 'App\Http\Controllers\auth'], function(){
         Route::get('/my-addresses', [ProfileController::class,'myAddresses'])->name('my-addresses');
         Route::get('/logout', 'LogoutController@perform')->name('logout.perform');
         //see details
-        Route::get('/flowershop/view-details/{id}',[DashboardController::class,'getDetails']);
-        Route::post('/flowershop/add-to-cart',[RequestController::class,'addToCart'])->name('add.to.cart');
+        Route::get('/dashboard/flowershop/view-details/{id}',[DashboardController::class,'getDetails']);
+        Route::post('/dashboard/flowershop/add-to-cart',[RequestController::class,'addToCart'])->name('add.to.cart');
         Route::post('/flowershop/remove-to-cart',[RequestController::class,'removeToCart'])->name('remove.to.cart');
-        Route::get('/flowershop/view-cart',[DashboardController::class,'getDetailsCart'])->name('view-cart');
+        Route::get('/dashboard/flowershop/view-cart',[DashboardController::class,'getDetailsCart'])->name('view-cart');
         Route::post('/flowershop/add-qty-cart',[RequestController::class,'addQtyCart'])->name('add.qty.cart');
         Route::post('/flowershop/less-qty-cart',[RequestController::class,'lessQtyCart'])->name('less.qty.cart');
         Route::post('/flowershop/submit-checkout',[RequestController::class,'submitCheckoutCart'])->name('submit-checkout');
+        Route::post('/flowershop/selected-address',[RequestController::class, 'selectedAddress'])->name('selected-address');
         //LOCATION
         Route::post('/flowershop/select-province',[ProfileController::class,'getProvince'])->name('getProvince');
         Route::post('/flowershop/select-city',[ProfileController::class,'getCity'])->name('getCity');
         Route::post('/flowershop/select-brgy',[ProfileController::class,'getBrgy'])->name('getBrgy');
-
+        //CHECKOUT
         Route::post('/flowershop/add-address',[ProfileController::class, 'addAddress'])->name('add-address');
+
+        //VOUCHERS
+        Route::get('/dashboard/flowershop/view-vouchers',[DashboardController::class,'getVouchersDetail'])->name('view-vouchers');
+        
     });
 
     Route::group(['middleware' => ['guest']], function() {

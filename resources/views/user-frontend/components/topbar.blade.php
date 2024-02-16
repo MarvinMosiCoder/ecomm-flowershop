@@ -25,7 +25,7 @@
           <ul class="site-menu js-clone-nav d-none d-xl-block ml-0 pl-0">
             <li><a href="about.html">Orders</a></li>
             <li>
-              <a href="job-listings.html">Vouchers</a>
+              <a href="{{ route('view-vouchers') }}">Vouchers</a>
             </li>
             <li>
               <a href="services.html">Free shipping</a>

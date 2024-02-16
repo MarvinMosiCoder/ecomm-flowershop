@@ -86,7 +86,7 @@
                         <div class="col-lg-3">
                             <div class="card" style="width: 100%;height:90%">
                                 <div class="img-card" style="width: 100%;height:100%">
-                                    <a href="{{ url('flowershop/view-details/'.$flower->inv_id) }}">
+                                    <a href="{{ url('/dashboard/flowershop/view-details/'.$flower->inv_id) }}">
                                         @if($flower->file_name)
                                             <img style="width:100%; height:100%" class="card-img-top" src="{{URL::to('vendor/crudbooster/inventory_images').'/'.$flower->file_name}}" alt="Card image cap">
                                         @else
@@ -96,7 +96,7 @@
                                 </div>
                                 <div class="card-body">
                                     <div class="content">
-                                        <h3><a class="alink" href="{{ url('flowershop/view-details'.$flower->inv_id) }}">{{$flower->flower_name}}</a></h3>
+                                        <h3><a class="alink" href="{{ url('/dashboardflowershop/view-details'.$flower->inv_id) }}">{{$flower->flower_name}}</a></h3>
                                         <div class="price">  
                                             ₱{{abs(number_format((($flower->percent_sale/100) * $flower->price)  - $flower->price, 2, '.', ''))}} 
                                             @if($flower->percent_sale != 0) <span>₱{{$flower->price}}</span> @endif
@@ -163,7 +163,7 @@
             success: function (response) {
                 var response = JSON.parse(response);
                 const img_url = APP_URL+'/vendor/crudbooster/inventory_images/';
-                const detail_url = APP_URL+'/flowershop/view-details/';
+                const detail_url = APP_URL+'/dashboard/flowershop/view-details/';
             
                 if(response.length == 0){
                     $('.causes_div').append('<div style="float:center">No Data Found</div>');

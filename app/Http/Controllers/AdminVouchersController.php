@@ -4,71 +4,46 @@
 	use Request;
 	use DB;
 	use CRUDBooster;
-	use App\Models\InventoryModel;
-	use App\Models\InventoryImageModel;
-	use App\Models\FlowerTypeModel;
-	use PhpOffice\PhpSpreadsheet\Spreadsheet;
-	use PhpOffice\PhpSpreadsheet\Reader\Exception;
-	use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
-	use PhpOffice\PhpSpreadsheet\IOFactory;
 
+	class AdminVouchersController extends \crocodicstudio\crudbooster\controllers\CBController {
 
-	class AdminInventoryTblController extends \crocodicstudio\crudbooster\controllers\CBController {
-		public function __construct() {
-			// Register ENUM type
-			DB::getDoctrineSchemaManager()->getDatabasePlatform()->registerDoctrineTypeMapping("enum", "string");
-		}
 	    public function cbInit() {
 
 			# START CONFIGURATION DO NOT REMOVE THIS LINE
-			$this->title_field = "id";
+			$this->title_field = "vouchers_name";
 			$this->limit = "20";
 			$this->orderby = "id,desc";
 			$this->global_privilege = false;
-			if(in_array(CRUDBooster::myPrivilegeId(),[1,3])){
-			    $this->button_table_action = true;
-			}else{
-				$this->button_table_action = false;
-			}
+			$this->button_table_action = true;
 			$this->button_bulk_action = false;
 			$this->button_action_style = "button_icon";
 			$this->button_add = false;
 			$this->button_edit = true;
 			$this->button_delete = false;
-			$this->button_detail = false;
+			$this->button_detail = true;
 			$this->button_show = true;
 			$this->button_filter = true;
 			$this->button_import = false;
-			$this->button_export = true;
-			$this->table = "inventory_tbl";
+			$this->button_export = false;
+			$this->table = "vouchers";
 			# END CONFIGURATION DO NOT REMOVE THIS LINE
 
 			# START COLUMNS DO NOT REMOVE THIS LINE
 			$this->col = [];
-			$this->col[] = ["label"=>"Flower Name","name"=>"flower_name"];
-			// $this->col[] = ["label"=>"Image","name"=>"image"];
-			$this->col[] = ["label"=>"Type","name"=>"flower_type","join"=>"sub_masterfile_flower_type,description"];
-			$this->col[] = ["label"=>"Price","name"=>"price"];
-			//$this->col[] = ["label"=>"Arrival","name"=>"arrival"];
-			$this->col[] = ["label"=>"Stock","name"=>"stock"];
-			//$this->col[] = ["label"=>"House Stock","name"=>"house_stock"];
-			$this->col[] = ["label"=>"Store","name"=>"store_id","join"=>"stores,store_name"];
-			$this->col[] = ["label"=>"Status","name"=>"status"];
+			$this->col[] = ["label"=>"Image","name"=>"image","image"=>true];
+			$this->col[] = ["label"=>"Vouchers Name","name"=>"vouchers_name"];
+			$this->col[] = ["label"=>"Min Spend","name"=>"min_spend"];
+			$this->col[] = ["label"=>"Percentage","name"=>"percentage"];
+			$this->col[] = ["label"=>"Vouchers Type","name"=>"vouchers_type"];
+			$this->col[] = ["label"=>"Vouchers From","name"=>"vouchers_from"];
+			$this->col[] = ["label"=>"Start Date","name"=>"start_date"];
 			$this->col[] = ["label"=>"Created By","name"=>"created_by","join"=>"cms_users,name"];
 			$this->col[] = ["label"=>"Created Date","name"=>"created_at"];
 			# END COLUMNS DO NOT REMOVE THIS LINE
 
 			# START FORM DO NOT REMOVE THIS LINE
 			$this->form = [];
-	
-			if(CRUDBooster::getCurrentMethod() == 'getEdit' || CRUDBooster::getCurrentMethod() == 'postEditSave' || CRUDBooster::getCurrentMethod() == 'getDetail') {
-				$this->form[] = ['label'=>'Flower Type','name'=>'flower_type','type'=>'select','width'=>'col-sm-5', 'disabled'=>true,'datatable'=>'sub_masterfile_flower_type,description','datatable_where'=>"status = 'ACTIVE'"];
-				$this->form[] = ['label'=>'Flower Name','name'=>'flower_name','type'=>'text','width'=>'col-sm-5', 'readonly'=>true];
-				$this->form[] = ['label'=>'Price','name'=>'price','type'=>'text','validation'=>'required|min:1|max:255','width'=>'col-sm-5'];
-			}
-		    
-			//$this->form[] = ['label'=>'Percent Sale','name'=>'percent_sale','type'=>'number','validation'=>'required|integer|min:0','width'=>'col-sm-10'];
-			//$this->form[] = ['label'=>'Quantity','name'=>'quantity','type'=>'number','validation'=>'required|integer|min:0','width'=>'col-sm-10'];
+
 			# END FORM DO NOT REMOVE THIS LINE
 
 			/* 
@@ -136,10 +111,8 @@
 	        */
 	        $this->index_button = array();
 			if(CRUDBooster::getCurrentMethod() == 'getIndex') {
-				$this->index_button[] = ["label"=>"Add Inventory","icon"=>"fa fa-plus-circle","url"=>CRUDBooster::mainpath('add-inventory'),"color"=>"success"];
-				$this->index_button[] = ["label"=>"Upload Inventory","icon"=>"fa fa-upload","url"=>CRUDBooster::mainpath('inventory-upload'),'color'=>'primary'];
+				$this->index_button[] = ["label"=>"Add Inventory","icon"=>"fa fa-plus-circle","url"=>CRUDBooster::mainpath('add-vouchers'),"color"=>"success"];
 			}
-
 
 	        /* 
 	        | ---------------------------------------------------------------------- 
@@ -171,12 +144,7 @@
 	        | $this->script_js = "function() { ... }";
 	        |
 	        */
-	        $this->script_js = "
-			$(document).ready(function() {
-				$('#btn_export_data').prop('class', 'btn btn-sm btn-success btn-export-data');
-				$('#btn_export_data').children().prop('class', 'fa fa-download');
-			});
-			";
+	        $this->script_js = NULL;
 
 
             /*
@@ -212,7 +180,7 @@
 	        |
 	        */
 	        $this->load_js = array();
-	        $this->load_js[] = asset("jquery-fat-zoom/js/zoom.js");
+	        
 	        
 	        
 	        /*
@@ -263,12 +231,8 @@
 	    |
 	    */
 	    public function hook_query_index(&$query) {
-			if(in_array(CRUDBooster::myPrivilegeId(),[1,3])){
-				$query->where('inventory_tbl.status','ACTIVE')->orderBy('inventory_tbl.id', 'DESC'); 
-			}else{
-				$query->where('store_id', Crudbooster::myStoreId())->where('inventory_tbl.status','ACTIVE')->orderBy('inventory_tbl.id', 'DESC'); 
-			}
-			
+	        //Your code here
+	            
 	    }
 
 	    /*
@@ -289,17 +253,7 @@
 	    |
 	    */
 	    public function hook_before_add(&$postdata) {        
-			$fields = Request::all();
-			$postdata['flower_name']      = $fields['flower_name'];
-			$postdata['item_description'] = $fields['item_description'];
-			$postdata['arrival']          = $fields['arrival'];
-			$postdata['stock']            = $fields['quantity'];
-			$postdata['flower_type']      = $fields['flower_type'];
-			$postdata['price']            = $fields['price'];
-			$postdata['percent_sale']     = $fields['percent_sale'];
-			$postdata['store_id']         = CRUDBooster::myStoreId();
-			$postdata['status']           = 'ACTIVE';
-			$postdata['created_by']       = CRUDBooster::myId();
+	        //Your code here
 
 	    }
 
@@ -311,28 +265,7 @@
 	    | 
 	    */
 	    public function hook_after_add($id) {        
-			$fields = Request::all();
-			$header = InventoryModel::where(['created_by' => CRUDBooster::myId()])->orderBy('id','desc')->first();
-			
-			$files 	= $fields['image'];
-			$images = [];
-			if (!empty($files)) {
-				$counter = 0;
-				foreach($files as $file){
-					$counter++;
-					$name = time().rand(1,50) . '.' . $file->getClientOriginalExtension();
-					$filename = $name;
-					$file->move('vendor/crudbooster/inventory_images',$filename);
-					$images[]= $filename;
-
-					$header_images               = new InventoryImageModel;
-					$header_images->inv_id       = $header->id;
-					$header_images->file_name    = $filename;
-					$header_images->ext 	     = $file->getClientOriginalExtension();
-					$header_images->created_by   = CRUDBooster::myId();
-					$header_images->save();
-				}
-			}
+	        //Your code here
 
 	    }
 
@@ -385,93 +318,16 @@
 
 	    }
 
-		public function getAddInventory() {
+		public function getAddVouchers() {
 	        if(!CRUDBooster::isCreate() && $this->global_privilege == false) {
 				CRUDBooster::redirect(CRUDBooster::adminPath(), trans('crudbooster.denied_access'));
 			}
             $data = [];
 			$this->cbLoader();
-			$data['page_title']  = 'Add Inventory';
-			$data['flower_type'] = FlowerTypeModel::select('*')->get();
-			return $this->view("admin.add-inventory", $data);
+			$data['page_title']  = 'Add Vouchers';
+			return $this->view("admin.add-vouchers", $data);
 
 	    }
-
-		public function getEdit($id) {
-	        if(!CRUDBooster::isCreate() && $this->global_privilege == false) {
-				CRUDBooster::redirect(CRUDBooster::adminPath(), trans('crudbooster.denied_access'));
-			}
-            $data = [];
-			$this->cbLoader();
-			$data['page_title']  = 'Edit Inventory';
-			$data['inventory_data'] = InventoryModel::select('*')->where('id',$id)->first();
-
-			return $this->view("admin.edit-inventory-vue", $data);
-
-	    }
-
-		public function UploadInventory() {
-			$data['page_title']= 'Inventory Upload';
-			return view('import.inventory-upload', $data)->render();
-		}
-
-		public function InventoryUpload(Request $request) {
-			$path_excel = $request->file('import_file')->store('temp');
-			$path = storage_path('app').'/'.$path_excel;
-			Excel::import(new InventoryImport, $path);	
-			CRUDBooster::redirect(CRUDBooster::adminpath('assets_supplies_inventory'), trans("Upload Successfully!"), 'success');
-		}
-
-		function downloadInventoryTemplate() {
-			if(Crudbooster::myPrivilegeId() == 2){
-				$arrHeader = [
-					"flower_type"        => "flower_type",
-					"flower_name"        => "flower_name",
-					"stock"              => "stock",
-					"price"              => "price"
-				];
-				$arrData = [
-					"flower_type"        => "Fresh Flowers / Dried Flowers",
-					"flower_name"        => "CHINA ROSE",
-					"stock"              => "1",
-					"price"              => "100",
-				];
-				$spreadsheet = new Spreadsheet();
-				$spreadsheet->getActiveSheet()->fromArray(array_values($arrHeader), null, 'A1');
-				$spreadsheet->getActiveSheet()->fromArray($arrData, null, 'A2');
-				$filename = "inventory-template-".date('Y-m-d');
-				header('Content-Type: application/vnd.ms-excel');
-				header('Content-Disposition: attachment;filename="'.$filename.'.xlsx"');
-				header('Cache-Control: max-age=0');
-				$writer = new Xlsx($spreadsheet);
-				$writer->save('php://output');
-			}else{
-				$arrHeader = [
-					"flower_type"        => "flower_type",
-					"flower_name"        => "flower_name",
-					"stock"              => "stock",
-					"price"              => "price",
-					"store"              => "store"
-				];
-				$arrData = [
-					"flower_type"        => "Fresh Flowers / Dried Flowers",
-					"flower_name"        => "CHINA ROSE",
-					"stock"              => "1",
-					"price"              => "100",
-					"store"              => "name of store"
-				];
-				$spreadsheet = new Spreadsheet();
-				$spreadsheet->getActiveSheet()->fromArray(array_values($arrHeader), null, 'A1');
-				$spreadsheet->getActiveSheet()->fromArray($arrData, null, 'A2');
-				$filename = "inventory-template-".date('Y-m-d');
-				header('Content-Type: application/vnd.ms-excel');
-				header('Content-Disposition: attachment;filename="'.$filename.'.xlsx"');
-				header('Cache-Control: max-age=0');
-				$writer = new Xlsx($spreadsheet);
-				$writer->save('php://output');
-			}
-			
-		}
 
 
 	}

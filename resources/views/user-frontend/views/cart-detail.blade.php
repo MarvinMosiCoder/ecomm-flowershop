@@ -29,7 +29,7 @@
                     {{-- <input type="hidden" value="{{$cart->cart_id}}" name="cart_id" id="cart_id{{$cart->cart_id}}"> --}}
                     
                     <div class="shopping-cart">
-                        <div class="item">
+                        <div class="item-cart">
                             <div class="buttons">
                                 <span class="check-btn"> <input type="checkbox" name="cart_id[]" value="{{$cart->cart_id}}" class="form-check-input check" > </span>
                             </div>
@@ -40,7 +40,7 @@
                             
                             <div class="description">
                                 <span>{{$cart->flower_name}}</span>
-                                <span>{{$cart->item_description}}</span>
+                                <span style="font-size: 12px">{{$cart->item_description}}</span>
                                 <span>White</span>
                             </div>
                             
@@ -180,7 +180,7 @@
         $('.minus-button').on('click', function(e) {
             e.preventDefault();
             var id = $(this).attr('data-id');
-            const input = $('.item');
+            const input = $('.item-cart');
             const qty = input.find('input[data-id="'+id+'"]');
             const newQty = parseInt(qty.val()) - 1;
             if(qty){
@@ -197,7 +197,7 @@
                 },
                 success: function (data) {
                     if (data.status == "success") {
-                        const input = $('.item');
+                        const input = $('.item-cart');
                         const qty = input.find('div[data-id="'+data.item.id+'"]');
                         const price = input.find('input[id="totalPrice'+data.item.id+'"]');
                         if(qty){
@@ -221,7 +221,7 @@
         $('.plus-button').on('click', function(e) {
             e.preventDefault();
             var id = $(this).attr('data-id');
-            const input = $('.item');
+            const input = $('.item-cart');
             const qty = input.find('input[data-id="'+id+'"]');
             const newQty = parseInt(qty.val()) + 1;
             if(qty){
@@ -239,7 +239,7 @@
                 },
                 success: function (data) {
                     if (data.status == "success") {
-                        const input = $('.item');
+                        const input = $('.item-cart');
                         const qty = input.find('div[data-id="'+data.item.id+'"]');
                         const price = input.find('input[id="totalPrice'+data.item.id+'"]');
                         if(qty){

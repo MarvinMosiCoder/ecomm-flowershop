@@ -35,6 +35,7 @@ class UsersAddresses extends Model
                     ->leftjoin('refcitymun','users_addresses.city','refcitymun.citymunCode')
                     ->leftjoin('refbrgy','users_addresses.barangay','refbrgy.id')
                     ->select('users_addresses.*',
+                             'users_addresses.id AS add_id',
                              'refregion.*',
                              'refregion.id AS region_id',
                              'refregion.regDesc AS region_desc',
@@ -55,6 +56,7 @@ class UsersAddresses extends Model
                     ->leftjoin('refcitymun','users_addresses.city','refcitymun.citymunCode')
                     ->leftjoin('refbrgy','users_addresses.barangay','refbrgy.id')
                     ->select('users_addresses.*',
+                             'users_addresses.id AS add_id',
                              'refregion.*',
                              'refregion.id AS region_id',
                              'refregion.regDesc AS region_desc',
@@ -66,6 +68,27 @@ class UsersAddresses extends Model
                              'refbrgy.id AS brgy_id'
                              )
                     ->whereNotNull('users_addresses.is_default')
+                    ->first();
+    }
+
+    public function scopeAddressSelected($query, $id){
+        return $query->where('users_addresses.id', $id)
+                    ->leftjoin('refregion','users_addresses.region','refregion.id')
+                    ->leftjoin('refprovince','users_addresses.province','refprovince.provCode')
+                    ->leftjoin('refcitymun','users_addresses.city','refcitymun.citymunCode')
+                    ->leftjoin('refbrgy','users_addresses.barangay','refbrgy.id')
+                    ->select('users_addresses.*',
+                             'users_addresses.id AS add_id',
+                             'refregion.*',
+                             'refregion.id AS region_id',
+                             'refregion.regDesc AS region_desc',
+                             'refprovince.*',
+                             'refprovince.id AS province_id',
+                             'refcitymun.*', 
+                             'refcitymun.id AS city_id',
+                             'refbrgy.*', 
+                             'refbrgy.id AS brgy_id'
+                             )
                     ->first();
     }
 }

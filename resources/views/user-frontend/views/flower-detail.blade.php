@@ -36,7 +36,7 @@
         <form action="" id="addToCartForm">
             @csrf
             <input type="hidden" value="{{csrf_token()}}" name="_token" id="token">
-            {{-- <input type="hidden" value={{$flowers->id}} name="inv_id" id="inv_id"> --}}
+            <input type="hidden" value={{$flowers->id}} name="inv_id" id="inv_id">
             <div class="row">
                 <div class="item col-md-6">
                     <img src="{{URL::to('vendor/crudbooster/inventory_images').'/'.$flowers->file_name}}" alt="" height="300" width="300">
@@ -145,20 +145,10 @@
     setTimeout("preventBack()", 0);
     
     $(document).ready(function(){
-        var transitionEnd = 'transitionend webkitTransitionEnd oTransitionEnd otransitionend';
-        var animationEnd = 'webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend';
-        $('.icon-shopping-cart').on(animationEnd, function(event){
-            $(this).removeClass('animated rubberBand');
-        });
+   
         $("#add-to-cart").click(function(e) {
-          
             var modal = document.getElementById("myModal");
             e.preventDefault();
-            $.ajaxSetup({
-                headers: {
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                        }
-            });
             $.ajax({
                 data: $('#addToCartForm').serialize(),
                 url: "{{ route('add.to.cart') }}",
@@ -166,12 +156,20 @@
                 dataType: 'json',
                 success: function (data) {
                     if (data.status == 'success') {
-                        $('.topMenu').fadeIn();
                         if($("#countCart").val() === ""){
                             $("#countCart").html(data.count);
                         }else{
                             parseInt($("#countCart").val())+data.count;
                         }
+                        Swal.fire({
+                            type: data.status,
+                            title: data.msg,
+                            icon:'success'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                location.reload();
+                            }
+                        });  
                     } else if (data.status == 'error') {
                         Swal.fire({
                             type: data.status,
@@ -186,34 +184,6 @@
                 }
             });     
         
-            //FLY TO CART
-            var cart = $('.icon-shopping-cart');
-            var imgtodrag = $('.item').find("img");
-            if (imgtodrag) {
-                var imgclone = imgtodrag.clone()
-                .css({
-                    top: imgtodrag.offset().top,
-                    left: imgtodrag.offset().left
-                })
-                .appendTo($('body')).addClass("move-to-cart");
-                setTimeout(function () {    
-                imgclone.addClass("animate");
-                imgclone.css({"top":cart.offset().top + 10});
-                imgclone.css({"left":cart.offset().left + 20});
-                imgclone.one(transitionEnd, function(event){
-                    imgclone.off(transitionEnd);
-                    $(this).addClass("hide-img");
-                    setTimeout(function () {
-                    imgclone.one(transitionEnd, function(event){
-                        imgclone.off(transitionEnd);
-                        $(this).detach();
-                        cart.addClass('animated rubberBand');
-
-                    });
-                    }, 1);
-                });
-                }, 1);
-            }
         });
         $(".close").click(function(e) {
             $('.topMenu').fadeOut();

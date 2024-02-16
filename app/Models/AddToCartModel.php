@@ -11,7 +11,8 @@ class AddToCartModel extends Model{
         'user_id',
         'prod_id',
         'quantity',
-        'price'
+        'price',
+        'standard_shipping'
         
     ];
 

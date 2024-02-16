@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use DB;
 use App\Models\InventoryModel;
 use App\Models\AddToCartModel;
+use App\Models\Vouchers;
+use App\Models\UsersVouchers;
 use Auth;
 
 class DashboardController extends Controller{
@@ -40,6 +42,16 @@ class DashboardController extends Controller{
         $data['my_cart'] = AddToCartModel::select('*')->where('user_id', Auth::id())->count();
         //dd($data['my_cart_detail']);
         return view('user-frontend.views.cart-detail',$data);
+    }
+
+    public function getVouchersDetail(){
+        $data = [];
+        $data['my_cart'] = AddToCartModel::select('*')->where('user_id', Auth::id())->count();
+        $data['vouchers'] = Vouchers::select('*')->get();
+        $myVouchers = UsersVouchers::select('voucher_id AS voucher_id')->where('user_id', Auth::id())->get()->toArray();
+        $data['my_vouchers'] = array_column($myVouchers, 'voucher_id');
+        
+        return view('user-frontend.views.vouchers-detail',$data);
     }
 
 }
