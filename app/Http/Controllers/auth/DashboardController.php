@@ -54,5 +54,15 @@ class DashboardController extends Controller{
         return view('user-frontend.views.vouchers-detail',$data);
     }
 
+    public function getFreeShippingDetail(){
+        $data = [];
+        $data['my_cart'] = AddToCartModel::select('*')->where('user_id', Auth::id())->count();
+        $data['vouchers'] = Vouchers::select('*')->get();
+        $myVouchers = UsersVouchers::select('voucher_id AS voucher_id')->where('user_id', Auth::id())->get()->toArray();
+        $data['my_vouchers'] = array_column($myVouchers, 'voucher_id');
+        
+        return view('user-frontend.views.free-shipping-detail',$data);
+    }
+
 }
  

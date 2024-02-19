@@ -86,7 +86,8 @@ Route::group(['namespace' => 'App\Http\Controllers\auth'], function(){
 
         //VOUCHERS
         Route::get('/dashboard/flowershop/view-vouchers',[DashboardController::class,'getVouchersDetail'])->name('view-vouchers');
-        
+        Route::get('/dashboard/flowershop/view-free-shipping',[DashboardController::class,'getFreeShippingDetail'])->name('view-free-shipping');
+        Route::post('dashboard/flowershop/get-vouchers-applied',[RequestController::class, 'getVouchersApplied'])->name('get-vouchers-applied');
     });
 
     Route::group(['middleware' => ['guest']], function() {

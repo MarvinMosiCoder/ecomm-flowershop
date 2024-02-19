@@ -102,6 +102,7 @@ class RequestController extends Controller{
         $data['vouchers'] = Vouchers::select('*')->get();
         $myVouchers = UsersVouchers::select('voucher_id AS voucher_id')->where('user_id', Auth::id())->get()->toArray();
         $data['my_vouchers'] = array_column($myVouchers, 'voucher_id');
+        $data['isUsedVouchers'] = UsersVouchers::select('voucher_id AS voucher_id')->where('user_id', Auth::id())->whereNotNull('is_used')->count();
         return view('user-frontend.views.checkout',$data);
     }
 
@@ -109,6 +110,44 @@ class RequestController extends Controller{
         $data = $request->all();
         $id = $data['selectedId'];
         $res = UsersAddresses::addressSelected($id);
+        return response()->json(['items'=> $res]);
+    }
+
+    public function getVouchersApplied(Request $request){
+        $data = $request->all();
+        
+        $value = (int)$data['subTotalValue'];
+        $zeroMinSpend = UsersVouchers::select('*')
+                    ->leftjoin('vouchers','users_vouchers.voucher_id','vouchers.id')
+                    ->where('users_vouchers.user_id',  Auth::id())
+                    ->whereNotNull('users_vouchers.is_used')
+                    ->where('vouchers.status', 'ACTIVE')
+                    ->where('users_vouchers.status', 'ACTIVE')  
+                    ->where('vouchers.min_spend', 0)  
+                    ->first();
+        $requiredMinSpend = UsersVouchers::select('*')
+                    ->leftjoin('vouchers','users_vouchers.voucher_id','vouchers.id')
+                    ->where('users_vouchers.user_id', Auth::id())
+                    ->whereNotNull('users_vouchers.is_used')
+                    ->where('vouchers.status', 'ACTIVE')
+                    ->where('users_vouchers.status', 'ACTIVE')  
+                    ->where('vouchers.min_spend', '!=', 0)
+                    ->where('vouchers.min_spend', '<',$value)  
+                    ->first();
+        $isFreeShippingZeroMinSpendActive = UsersVouchers::select('*')
+                    ->leftjoin('vouchers','users_vouchers.voucher_id','vouchers.id')
+                    ->where('users_vouchers.user_id',  Auth::id())
+                    ->whereNotNull('users_vouchers.is_used')
+                    ->where('vouchers.status', 'ACTIVE')
+                    ->where('users_vouchers.status', 'ACTIVE')  
+                    ->where('vouchers.min_spend', 0)  
+                    ->first();
+        if($isFreeShippingZeroMinSpendActive){
+            $res = $zeroMinSpend;
+        }else{
+            $res = $requiredMinSpend;
+        }
+   
         return response()->json(['items'=> $res]);
     }
 

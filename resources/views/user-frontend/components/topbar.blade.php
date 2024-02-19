@@ -28,7 +28,7 @@
               <a href="{{ route('view-vouchers') }}">Vouchers</a>
             </li>
             <li>
-              <a href="services.html">Free shipping</a>
+              <a href="{{ route('view-free-shipping') }}">Free shipping</a>
             </li>
             <li>  
                 <div>

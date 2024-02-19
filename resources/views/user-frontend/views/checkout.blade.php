@@ -107,8 +107,12 @@
                     </a>
                     <a id="btnVouchers" data-toggle="modal" data-target="#vouchersModal">
                         <div class="custom-card free-shipping ">
-                            <div class="arrow pull-right" style="font-size: 20px !important">&#62;</div>
-                            <h6 style="padding-top:5px"> <i class="	fas fa-ticket-alt"></i> Platform vouchers</h6>
+                            <div class="arrow pull-right" style="font-size: 23px !important;">&#62;</div>
+                            @if($isUsedVouchers !== 0)
+                                <label class="btn btn-outline-success btn-sm pull-right" style="font-size: 10px; margin-right:25px; bottom:50px">Free shipping applied</label>
+                            @endif
+                            <h6 style="padding-top:7px"> <i class="	fas fa-ticket-alt"></i> Platform vouchers</h6>
+                       
                         </div>
                     </a>
                     <div class="custom-card payment">
@@ -161,7 +165,12 @@
                                     <div class="form-group">
                                         <label>Standard shipping</label>
                                         <input type="hidden" value="{{$cart->standard_shipping}}" class="shipping">
-                                        <label class="pull-right" id="isShipping" style="margin-right: 10%">₱{{number_format($cart->standard_shipping,2)}}</label><br>
+                                        <label class="pull-right displayedShipping" id="isShipping" style="margin-right: 10%">₱{{number_format($cart->standard_shipping,2)}}</label><br>
+                                        <span class="append-shipping-discounts" style="display: none">
+                                            <label>Shipping discounts</label>
+                                            <input type="hidden" class="shipping-discounts">
+                                            <label class="pull-right isShippingDiscounts" id="isShippingDiscounts" style="margin-right: 10%">₱0</label><br>
+                                        </span><br>
                                         <label><i class="fa fa-clock"></i> Estimated delivery</label>
                                         <label class="pull-right" style="margin-right: 7%">test date</label>
                                     </div>
@@ -270,12 +279,13 @@
 @section('script-js')
   <script>
     $(document).ready(function(){
+        isUsedVouchersApplied();
         $('#price').text(`₱${calculatePrice().toFixed(2)}`);
         $('#hidden-subtotal').val(calculatePrice().toFixed(2));
         $('#shipping').text(`₱${calculateShipping().toFixed(2)}`);
         $('#hidden-shipping').val(calculateShipping().toFixed(2));
         $('#totalPrice').text(`₱${calculateTotalPrice().toFixed(2)}`);
-
+        
         $('input:radio[name="address"]').on('change',function() {
             const selectedValue = $(this).val();
             $.ajax({
@@ -328,6 +338,68 @@
         return totalQuantity;
     }
 
+
+    function calculateTotalPrice() {
+        let totalPrice = 0;
+        
+        let price = 0;
+        if($('#hidden-subtotal').val().trim()) {
+            price = parseInt($('#hidden-subtotal').val().replace(/,/g, '')) + parseInt($('#hidden-shipping').val().replace(/,/g, ''));
+        }
+        totalPrice += price;
+        return totalPrice;
+    }
+
+    function isUsedVouchersApplied(){
+        const subTotal = $('#hidden-subtotal').val().replace(/,/g, '');
+        $.ajax({
+            url:"{{ route('get-vouchers-applied')}}",
+            type:"POST",
+            dataType:'json',
+            data:{
+                _token:"{{csrf_token()}}",
+                subTotalValue: subTotal,
+            },
+            success:function(res){
+                console.log(res)
+                if(res.items === null){
+                    $('.append-shipping-discounts').hide();
+                }else{
+                    $('.append-shipping-discounts').show();
+                    processDiscounts(res.items);
+                }
+            },
+            error:function(res){
+                alert('Failed')
+            },
+        });
+    }
+
+    function processDiscounts(data){
+        if(data != 'null' || data != null){
+            const shipping = $('.shipping').val();
+            const discounts  = parseInt(((data.percentage/100) * shipping));
+            $('.shipping-discounts').val(discounts);
+            $('.isShippingDiscounts').text(`₱${discounts.toFixed(2)}`);
+            if(parseInt($('.shipping').val()) === discounts){
+                $('.displayedShipping').addClass('isShipping');
+                $('.shipping').val(0);
+                $('#shipping').addClass('isShipping');
+                $('#hidden-shipping').val(0);
+                totalPrice = parseInt($('#hidden-subtotal').val().replace(/,/g, ''));
+                $('#totalPrice').text(`₱${totalPrice.toFixed(2)}`);
+            }else{
+                const newFreshipping = parseInt($('.shipping').val()) - discounts;
+                $('.shipping').val(newFreshipping);
+                $('.displayedShipping').text(`₱${newFreshipping.toFixed(2)}`);
+                $('#hidden-shipping').val(newFreshipping);
+                $('#shipping').text(`₱${newFreshipping.toFixed(2)}`);
+                totalPrice = parseInt($('#hidden-subtotal').val().replace(/,/g, '')) + newFreshipping;
+                $('#totalPrice').text(`₱${totalPrice.toFixed(2)}`);
+            }
+        }
+    }
+
     function calculateShipping() {
         let totalShipping = 0;
         $('.shipping').each(function() {
@@ -340,16 +412,6 @@
         return totalShipping;
     }
 
-    function calculateTotalPrice() {
-        let totalPrice = 0;
-        
-        let price = 0;
-        if($('#hidden-subtotal').val().trim()) {
-            price = parseInt($('#hidden-subtotal').val().replace(/,/g, '')) + parseInt($('#hidden-shipping').val().replace(/,/g, ''));
-        }
-        totalPrice += price;
-        return totalPrice;
-    }
   </script>
 @endsection
 

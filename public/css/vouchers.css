@@ -1,14 +1,27 @@
+.custom-card-free-shipping{
+    background-color: #00A86B;
+    border-radius: 6px;
+    padding-top: 20px;
+    margin: 20px auto;
+}
+
+.custom-card-vouchers{
+    background-color: #E36176;
+    border-radius: 6px;
+    padding-top: 20px;
+}
+
 .upcomming {
     font-size: 45px;
     text-transform: uppercase;
     border-left: 10px solid #E36176;
-    padding-left: 12px;
-    margin: 18px 8px;
+    padding-left: 15px;
+    margin: 10px 8px;
 }
 div.container {
     max-width: 1200px;
-    overflow: hidden
-    
+    overflow: hidden;
+   
 }
 
 .container .item {
@@ -17,6 +30,8 @@ div.container {
     background: #ffffff;
     overflow: hidden;
     margin: 20px auto;
+    box-shadow: 1px 2px 3px 0px rgba(0,0,0,0.10);
+    border-radius: 6px;
 }
 .container .item-right, .container .item-left {
     float: left;
@@ -28,11 +43,11 @@ div.container {
     width: 25%;
     position: relative;
     height: 205px;
-    background-color: #00A86B;
+    /* background-color: #00A86B; */
 }
 .container .item-right .up-border, .container .item-right .down-border {
     padding: 14px 15px;
-    background-color: #ddd;
+    background-color: #00A86B;
     border-radius: 50%;
     position: absolute;
     
