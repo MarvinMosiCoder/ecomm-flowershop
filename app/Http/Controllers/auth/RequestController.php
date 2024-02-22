@@ -11,11 +11,14 @@ use App\Models\UsersAddresses;
 use App\Models\PaymentTypeModel;
 use App\Models\Vouchers;
 use App\Models\UsersVouchers;
+use App\Models\Orders;
+use App\Models\OrderLines;
 use Auth;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Str;
 
 class RequestController extends Controller{
-
+    private const Pending  = 1;
     public function addToCart(Request $request){
         $data = $request->all();
         $prodId = $data['inv_id'];
@@ -115,9 +118,8 @@ class RequestController extends Controller{
 
     public function getVouchersApplied(Request $request){
         $data = $request->all();
-        
         $value = (int)$data['subTotalValue'];
-        $zeroMinSpend = UsersVouchers::select('*')
+        $zeroMinSpend = UsersVouchers::select('*','vouchers.id as v_id')
                     ->leftjoin('vouchers','users_vouchers.voucher_id','vouchers.id')
                     ->where('users_vouchers.user_id',  Auth::id())
                     ->whereNotNull('users_vouchers.is_used')
@@ -125,7 +127,7 @@ class RequestController extends Controller{
                     ->where('users_vouchers.status', 'ACTIVE')  
                     ->where('vouchers.min_spend', 0)  
                     ->first();
-        $requiredMinSpend = UsersVouchers::select('*')
+        $requiredMinSpend = UsersVouchers::select('*','vouchers.id as v_id')
                     ->leftjoin('vouchers','users_vouchers.voucher_id','vouchers.id')
                     ->where('users_vouchers.user_id', Auth::id())
                     ->whereNotNull('users_vouchers.is_used')
@@ -134,7 +136,7 @@ class RequestController extends Controller{
                     ->where('vouchers.min_spend', '!=', 0)
                     ->where('vouchers.min_spend', '<',$value)  
                     ->first();
-        $isFreeShippingZeroMinSpendActive = UsersVouchers::select('*')
+        $isFreeShippingZeroMinSpendActive = UsersVouchers::select('*','vouchers.id as v_id')
                     ->leftjoin('vouchers','users_vouchers.voucher_id','vouchers.id')
                     ->where('users_vouchers.user_id',  Auth::id())
                     ->whereNotNull('users_vouchers.is_used')
@@ -151,5 +153,44 @@ class RequestController extends Controller{
         return response()->json(['items'=> $res]);
     }
 
+    public function submitPayment(Request $request){
+        $data = $request->all();
+        $latestOrder = Orders::orderBy('created_at','DESC')->first();
+        $standard_shipping = DB::table('standard_shippings')->select('*')->first();
+        $tracking_number = Str::random(11);
+        $orders_id = Orders::insertGetId([
+            'order_number'        => '#'.str_pad($latestOrder->id + 1, 8, "0", STR_PAD_LEFT),
+            'tracking_number'     => $tracking_number,
+            'status'              => self::Pending,
+            'user_id'             => Auth::id(),
+            'drop_address'        => $data['address_id'],
+            'payment_method'      => $data['payment_type'],
+            'subtotal'            => $data['sub_total'],
+            'shipping'            => $standard_shipping->current_standard_shipping,
+            'shipping_discounts'  => $data['shipping'],
+            'overall_total'       => $data['overall_total'],
+            'order_date'          => date('Y-m-d H:i:s'),
+            'payment_time'        => NULL,
+            'shipment_date'       => NULL,
+            'delivery_date'       => NULL,
+            'created_at'          => date('Y-m-d H:i:s')
+        ]);
+     
+        foreach($data['cart_id'] as $val){
+            $cart_detail = DB::table('add_to_cart_tbl')->where('id',$val)->first();
+            OrderLines::insert([
+                'order_id'          => $orders_id,
+                'product_id'        => $val,
+                'quantity'          => $cart_detail->quantity,
+                'subtotal'          => $cart_detail->price,
+                'shipping_standard' => $cart_detail->standard_shipping,
+                'shipping_discount' => $data['shipping'],
+                'created_at'        => date('Y-m-d H:i:s')
+            ]);
+            DB::table('add_to_cart_tbl')->where('id', $val)->delete();
+        }
+        $res = ['status'=>'success','msg'=>'Success!'];
+		return json_encode($res);
+    }
 }
  

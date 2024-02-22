@@ -12,78 +12,98 @@
             <h1 class="upcomming mt-4">VOUCHERS</h1>
            
             <div class="custom-card-free-shipping">
-                <div class="container">
-                    <h4 style="color: #fff">Free shipping</h4>
-                    <hr>
-                    @foreach($vouchers as $voucher)
-                        <input type="hidden" value="{{csrf_token()}}" name="_token" id="token">
-                            <div class="item">
-                            <div class="item-right">
-                                <h2 class="num" style="color: #fff">Free</h2>
-                                <p class="day" style="color: #fff">Shipping</p>
-                                <span class="up-border"></span>
-                                <span class="down-border"></span>
-                            </div> <!-- end item-right -->
-                            
-                            <div class="item-left">
-                                <p class="event">{{$voucher->percentage}}% {{$voucher->vouchers_name}}</p>
-                                <h2 class="event">₱{{$voucher->min_spend}} Min Spend</h2>
+                <h3 class="text-center text-white pt-3">Free shipping</h3>
+                <div class="container my-5">
+                    <div class="row">
+                        @foreach($vouchers as $voucher)
+                            <div class="col-sm-6">
+                                <div class="coupon bg-white rounded mb-2 d-flex justify-content-between">
+                                    <div class="kiri p-5">
+                                        <div class="icon-container ">
+                                            <div class="icon-container_box mt-2">
+                                                <img src="{{URL::to('images/freeshipping.png')}}" width="85" alt="totoprayogo.com" class="" />
+                                            </div>
+                                        </div>
+                                    </div>
                                 
-                                <div class="sce">
-                                <p><a href="#" class="btn btn-outline-primary">Sitewide</a></p>
+                                    <div class="divider">
+                                        <div class="info m-3 d-flex align-items-center">
+                                        </div>
+                                    </div>
+
+                                    <div class="tengah py-3 d-flex w-100 justify-content-start">
+                                        <div>
+                                            <p class="event">{{$voucher->percentage}}% {{$voucher->vouchers_name}}</p>
+                                            <h4 class="event">₱{{$voucher->min_spend}} Min Spend</h4>
+                                            
+                                            <p><a href="#" class="btn btn-sm btn-outline-danger">Sitewide</a></p>
+                                        
+                                            <div class="fix"></div>
+                                            <div class="loc">
+                                                <p>{{$voucher->percentage}}%  used. valid til {{$voucher->end_date}}</p>
+                                            </div>
+                                        </div>
+                                    
+                                    </div>
+                                    <div class="p-4" style="margin-top:10%">
+                                        @if(in_array($voucher->id, $my_vouchers))
+                                            <span class="pull-right"><a href="#" class="btn btn-outline-success btn-sm">Use</a></span>
+                                        @else
+                                            <span class="pull-right"><button class="btn btn-success btn-sm" data-id="{{$voucher->id}}" id="btn-claim" style="background-color:#00A86B !important">Claim</button></span>
+                                        @endif
+                                    </div>
                                 </div>
-                                @if(in_array($voucher->id, $my_vouchers))
-                                    <span class="pull-right"><a href="#" class="btn btn-outline-success btn-sm">Use</a></span>
-                                @else
-                                    <span class="pull-right"><button class="btn btn-success btn-sm" data-id="{{$voucher->id}}" id="btn-claim" style="background-color:#00A86B !important">Claim</button></span>
-                                @endif
-                                <div class="fix"></div>
-                                <div class="loc">
-                                <p>{{$voucher->percentage}}%  used. valid til {{$voucher->end_date}}</p>
-                                </div>
-                                <div class="fix"></div>
-                            
-                            </div> <!-- end item-right -->
-                            </div> <!-- end item -->
-                    @endforeach
+                            </div>
+                        @endforeach
+                    </div>
                 </div>
             </div>
 
-            <div class="custom-card-vouchers">
-                <div class="container">
-                    <h4 style="color: #fff">Exclusive vouchers</h4>
-                    <hr>
-                    @foreach($vouchers as $voucher)
-                        <input type="hidden" value="{{csrf_token()}}" name="_token" id="token">
-                            <div class="item">
-                            <div class="item-right">
-                                <h2 class="num" style="color: #fff">Free</h2>
-                                <p class="day" style="color: #fff">Shipping</p>
-                                <span class="up-border"></span>
-                                <span class="down-border"></span>
-                            </div> <!-- end item-right -->
-                            
-                            <div class="item-left">
-                                <p class="event">{{$voucher->percentage}}% {{$voucher->vouchers_name}}</p>
-                                <h2 class="event">₱{{$voucher->min_spend}} Min Spend</h2>
+            <div class="custom-card-vouchers mt-3">
+                <h3 class="text-center text-white pt-3">Exclusive Vouchers</h3>
+                <div class="container my-5">
+                    <div class="row">
+                        @foreach($vouchers as $voucher)
+                            <div class="col-sm-6">
+                                <div class="exclusive-coupon bg-white rounded mb-2 d-flex justify-content-between">
+                                    <div class="kiri p-5">
+                                        <div class="icon-container ">
+                                            <div class="icon-container_box mt-2">
+                                                <img src="{{URL::to('images/freeshipping.png')}}" width="85" alt="totoprayogo.com" class="" />
+                                            </div>
+                                        </div>
+                                    </div>
                                 
-                                <div class="sce">
-                                <p><a href="#" class="btn btn-outline-primary">Sitewide</a></p>
+                                    <div class="exclusive-coupon-divider">
+                                        <div class="info m-3 d-flex align-items-center">
+                                        </div>
+                                    </div>
+
+                                    <div class="exclusive-coupon-detail py-3 d-flex w-100 justify-content-start">
+                                        <div>
+                                            <p class="event">{{$voucher->percentage}}% {{$voucher->vouchers_name}}</p>
+                                            <h4 class="event">₱{{$voucher->min_spend}} Min Spend</h4>
+                                            
+                                            <p><a href="#" class="btn btn-sm btn-outline-danger">Sitewide</a></p>
+                                        
+                                            <div class="fix"></div>
+                                            <div class="loc">
+                                                <p>{{$voucher->percentage}}%  used. valid til {{$voucher->end_date}}</p>
+                                            </div>
+                                        </div>
+                                    
+                                    </div>
+                                    <div class="p-4" style="margin-top:10%">
+                                        @if(in_array($voucher->id, $my_vouchers))
+                                            <span class="pull-right"><a href="#" class="btn btn-outline-success btn-sm">Use</a></span>
+                                        @else
+                                            <span class="pull-right"><button class="btn btn-success btn-sm" data-id="{{$voucher->id}}" id="btn-claim" style="background-color:#00A86B !important">Claim</button></span>
+                                        @endif
+                                    </div>
                                 </div>
-                                @if(in_array($voucher->id, $my_vouchers))
-                                    <span class="pull-right"><a href="#" class="btn btn-outline-success btn-sm">Use</a></span>
-                                @else
-                                    <span class="pull-right"><button class="btn btn-success btn-sm" data-id="{{$voucher->id}}" id="btn-claim" style="background-color:#00A86B !important">Claim</button></span>
-                                @endif
-                                <div class="fix"></div>
-                                <div class="loc">
-                                <p>{{$voucher->percentage}}%  used. valid til {{$voucher->end_date}}</p>
-                                </div>
-                                <div class="fix"></div>
-                            
-                            </div> <!-- end item-right -->
-                            </div> <!-- end item -->
-                    @endforeach
+                            </div>
+                        @endforeach
+                    </div>
                 </div>
             </div>
         </form>
